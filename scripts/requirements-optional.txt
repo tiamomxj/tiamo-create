@@ -1,0 +1,6 @@
+# Optional capabilities - install only what is needed (`mcb doctor` lists what is missing):
+zstandard>=0.21        # read Voxy caches (servers the player visited with the Voxy mod); also needs Java 17+
+scipy>=1.10            # faster build detection and camera fitting; required for the making-of video sound mix
+playwright>=1.45       # headless screenshots of the preview page; afterwards run: python -m playwright install chromium
+edge-tts>=7.3.1        # making-of video narration (older versions get HTTP 403)
+imageio-ffmpeg>=0.5    # a bundled ffmpeg for the video when none is installed

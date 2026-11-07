@@ -1,0 +1,5 @@
+# Core: design, export, verify, materials, drawings, maps, previews (python -m pip install -r requirements.txt)
+numpy>=1.24
+Pillow>=10.1
+tomli>=2.0; python_version < "3.11"
+# Optional extras: requirements-optional.txt (ask the user before installing; `mcb doctor` says which ones help)

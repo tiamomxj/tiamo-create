@@ -1,0 +1,14 @@
+{
+ "version": "1.21.11",
+ "data_version": 4671,
+ "litematic_version": 7,
+ "litematic_subversion": 1,
+ "sponge_schem_version": 3,
+ "harness": {
+  "loom": "1.17.13",
+  "yarn": "1.21.11+build.6",
+  "loader": "0.19.5",
+  "fabric_api": "0.141.6+1.21.11"
+ },
+ "notes": "blocks/items/registries from the --reports datagen of the 1.21.11 server jar (gzipped as-is); facts.json.gz from the harness dumpFacts; tags.json.gz from data/minecraft/tags/block in the client jar; history.json = first version of every block newer than 1.20.1; world-template.dat = neutral level.dat of a fresh 1.21.11 save. Display names are not bundled: names.py reads them from the player's own game files."
+}

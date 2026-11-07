@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>/*TITLE*/</title>
+<style>
+:root{--ink:#1f2328;--muted:#6a7077;--paper:rgba(251,250,247,.93);--line:#e2dfd8;--accent:#5b3b24;--dark:#3d4147}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:#bcd7ea;font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",system-ui,sans-serif;color:var(--ink)}
+#stage{position:fixed;inset:0}
+#view{display:block;width:100%;height:100%;outline:none;touch-action:none}
+aside{position:absolute;left:18px;top:18px;width:300px;max-height:calc(100% - 36px);overflow:auto;padding:20px 20px 16px;border-radius:14px;background:var(--paper);box-shadow:0 10px 40px rgba(20,30,40,.16);backdrop-filter:blur(10px)}
+.eyebrow{font-size:10.5px;letter-spacing:.14em;color:var(--muted)}
+h1{margin:8px 0 0;font-size:28px;font-weight:600;letter-spacing:.05em}
+.en{font-size:12px;color:var(--muted);letter-spacing:.08em;margin-top:2px}
+p.lead{font-size:12.5px;line-height:1.8;color:#4b5158;margin:12px 0 4px}
+h2{font-size:11px;letter-spacing:.12em;color:var(--muted);font-weight:600;margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--line)}
+.views{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:8px 6px;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+button:hover{border-color:#bdb6aa}
+button.on{background:var(--dark);border-color:var(--dark);color:#fff}
+button.wide{grid-column:span 2}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12.5px;margin:7px 0}
+.row input[type=range]{flex:1;accent-color:var(--accent)}
+.row label{display:flex;align-items:center;gap:7px;cursor:pointer}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px}
+.val{font-variant-numeric:tabular-nums;color:var(--muted);min-width:56px;text-align:right}
+dl{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:12.5px;margin:0}
+dt{color:var(--muted)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
+code{font-family:Consolas,"Cascadia Mono",monospace;font-size:12px;background:#f1eee8;padding:1px 5px;border-radius:4px}
+#drawer{position:absolute;right:18px;top:18px;width:340px;max-height:calc(100% - 36px);overflow:auto;padding:18px 18px 12px;border-radius:14px;background:var(--paper);box-shadow:0 10px 40px rgba(20,30,40,.16);backdrop-filter:blur(10px);display:none}
+#drawer.open{display:block}
+#drawer table{width:100%;border-collapse:collapse;font-size:12.5px}
+#drawer td{padding:5px 2px;border-bottom:1px solid var(--line)}
+#drawer td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+#drawer td.s{color:var(--muted);text-align:right;font-size:11.5px;white-space:nowrap}
+#drawer td.note{color:#9a5b16;font-size:11px}
+.close{float:right;padding:4px 9px}
+#hint{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);background:rgba(251,250,247,.86);border-radius:999px;padding:7px 16px;font-size:11.5px;color:#4b5158;white-space:nowrap;box-shadow:0 4px 18px rgba(20,30,40,.12)}
+#loading{position:absolute;inset:0;display:grid;place-items:center;background:#bcd7ea;font-size:14px;color:#33505f;transition:opacity .4s}
+body.ready #loading{opacity:0;pointer-events:none}
+#compare{position:absolute;inset:0;display:none;pointer-events:none}
+#compare.on{display:block}
+#compare img{position:absolute;object-fit:fill;clip-path:inset(0 calc(100% - var(--cut,50%)) 0 0)}
+#wipe{position:absolute;top:0;bottom:0;width:3px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.25);pointer-events:auto;cursor:ew-resize}
+#wipe span{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:999px;padding:5px 10px;font-size:11.5px;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+#gallery{position:absolute;inset:0;background:rgba(14,18,24,.92);display:none;flex-direction:column;z-index:5}
+#gallery.open{display:flex}
+.gbar{display:flex;justify-content:space-between;align-items:center;padding:14px 22px;color:#e9edf1;font-size:13px}
+.ggrid{flex:1;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;padding:4px 22px 22px}
+.ggrid figure{margin:0;cursor:zoom-in}.ggrid img{width:100%;border-radius:8px;display:block}
+.ggrid figcaption{color:#c9d1d9;font-size:12px;margin-top:6px}
+#gbig{position:absolute;inset:56px 22px 22px;width:calc(100% - 44px);height:calc(100% - 78px);object-fit:contain;display:none;cursor:zoom-out;background:rgba(14,18,24,.96)}
+#gallery.zoom #gbig{display:block}
+@media (max-width:820px){aside{width:236px;padding:14px}h1{font-size:21px}p.lead,.eyebrow,.en{display:none}#hint{display:none}}
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="view" data-t-aria="canvas" aria-label="3D block preview" tabindex="0"></canvas></div>
+<div id="compare"><img id="shot" data-t-alt="shot_alt" alt=""><div id="wipe"><span data-t="wipe"></span></div></div>
+<aside>
+  <div class="eyebrow" id="eyebrow"></div>
+  <h1 id="title"></h1>
+  <div class="en" id="subtitle"></div>
+  <p class="lead" id="lead"></p>
+  <h2 data-t="views"></h2>
+  <div class="views" id="views"></div>
+  <h2 data-t="light"></h2>
+  <div class="row"><span data-t="time"></span><input id="day" type="range" min="0" max="100" value="100" data-t-aria="time_aria"><span class="val" id="dayv" data-t="day"></span></div>
+  <div class="row"><label><input id="ctx" type="checkbox" checked><span id="ctxl"></span></label></div>
+  <div class="row" id="plotrow"><label><input id="plot" type="checkbox" checked><span id="plotl" data-t="plot"></span></label></div>
+  <div class="row"><span data-t="cut"></span><input id="cut" type="range" min="0" max="1" value="1" data-t-aria="cut_aria"><span class="val" id="cutv" data-t="full"></span></div>
+  <div class="row"><label><input id="layer" type="checkbox"><span data-t="layer"></span></label></div>
+  <h2 data-t="data"></h2>
+  <dl id="stats"></dl>
+  <div class="views" style="margin-top:12px"><button id="mat" data-t="materials"></button><button id="gal" data-t="gallery"></button></div>
+</aside>
+<div id="drawer"><button class="close" id="drawerClose" data-t="close"></button><h2 style="border:0;margin-top:2px;padding-top:4px" data-t="materials"></h2><div id="matnote" style="font-size:11.5px;color:var(--muted);line-height:1.7;margin-bottom:8px"></div><table id="mats"></table></div>
+<div id="gallery" role="dialog" data-t-aria="gallery"><div class="gbar"><span id="galtitle" data-t="gallery"></span><button id="galClose" data-t="close"></button></div><div class="ggrid" id="ggrid"></div><img id="gbig" alt=""></div>
+<div id="hint" data-t="hint"></div>
+<div id="loading" data-t="loading">…</div>
+<script>/*SCENE*/</script>
+<script>/*PAGE*/</script>
+<script>
+(function(){ const U = (window.PAGE || {}).ui || {};   // interface language (set by the kit: zh / en)
+  document.querySelectorAll('[data-t]').forEach(e => { if (U[e.dataset.t]) e.textContent = U[e.dataset.t]; });
+  document.querySelectorAll('[data-t-aria]').forEach(e => { if (U[e.dataset.tAria]) e.setAttribute('aria-label', U[e.dataset.tAria]); });
+  document.querySelectorAll('[data-t-alt]').forEach(e => { if (U[e.dataset.tAlt]) e.alt = U[e.dataset.tAlt]; });
+})();
+</script>
+<script>/*BUNDLE*/</script>
+<script>
+(function(){
+  const P = window.PAGE || {};
+  const U = P.ui || {};
+  const V = () => window.viewer;
+  const $ = id => document.getElementById(id);
+  $('title').textContent = P.title || ''; $('subtitle').textContent = P.subtitle || ''; $('eyebrow').textContent = P.eyebrow || '';
+  $('lead').textContent = P.lead || ''; $('ctxl').textContent = P.contextLabel || U.context || '';
+  if (P.galleryTitle) $('galtitle').textContent = P.galleryTitle;
+  if (P.hint) $('hint').textContent = P.hint;
+  if (!(P.outline || []).length) $('plotrow').style.display = 'none'; else if (P.outlineLabel) $('plotl').textContent = P.outlineLabel;
+  const views = $('views');
+  for (const v of (P.views || [])) {
+    const b = document.createElement('button'); b.textContent = v.label || v.name; b.dataset.view = v.name;
+    if (v.wide) b.classList.add('wide');
+    b.onclick = () => V().setPreset(v.name); views.appendChild(b);
+  }
+  const stats = $('stats');
+  for (const [k, v] of (P.stats || [])) { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.innerHTML = v; stats.append(dt, dd); }
+  const day = $('day'), dayv = $('dayv');
+  day.oninput = () => { const t = day.value / 100; V().setDay(t); dayv.textContent = t > .8 ? U.day : t > .45 ? U.dusk : t > .2 ? U.evening : U.night; };
+  $('ctx').onchange = e => V().showContext(e.target.checked);
+  $('plot').onchange = e => V().showOutline(e.target.checked);
+  const [CMIN, CMAX] = P.cutRange || [0, 1];
+  const cut = $('cut'), cutv = $('cutv'), layer = $('layer');
+  cut.min = CMIN; cut.max = CMAX; cut.value = CMAX;
+  const applyCut = () => {
+    const y = +cut.value, full = y >= CMAX && !layer.checked;
+    cutv.textContent = full ? U.full : 'Y=' + y;
+    if (full) V().setCut(1e4); else if (layer.checked) V().setCut(y + 1, y); else V().setCut(y + 1);
+  };
+  cut.oninput = applyCut; layer.onchange = applyCut;
+  window.addEventListener('preset', e => {
+    document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.view === e.detail.name));
+    if (e.detail.cut) { cut.value = Math.floor(e.detail.cut); layer.checked = false; cutv.textContent = 'Y=' + cut.value; }
+    else { cut.value = CMAX; layer.checked = false; cutv.textContent = U.full; }
+    setCompare(!!(P.views || []).find(v => v.name === e.detail.name && v.compare));
+  });
+  const drawer = $('drawer');
+  $('mat').onclick = () => drawer.classList.toggle('open');
+  $('drawerClose').onclick = () => drawer.classList.remove('open');
+  $('matnote').textContent = P.matNote || '';
+  const gal = $('gallery'), ggrid = $('ggrid'), gbig = $('gbig');
+  for (const g of (P.gallery || [])) {
+    const f = document.createElement('figure'); const im = document.createElement('img'); im.src = g.src; im.alt = g.label; im.loading = 'lazy';
+    const c = document.createElement('figcaption'); c.textContent = g.label; f.append(im, c);
+    f.onclick = () => { gbig.src = g.src; gal.classList.add('zoom'); }; ggrid.appendChild(f);
+  }
+  gbig.onclick = () => gal.classList.remove('zoom');
+  $('gal').onclick = () => gal.classList.add('open');
+  $('galClose').onclick = () => gal.classList.remove('open', 'zoom');
+  if (!(P.gallery || []).length) $('gal').style.display = 'none';
+  if (!(P.materials || []).length) $('mat').style.display = 'none';
+  const mats = $('mats');
+  for (const m of (P.materials || [])) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${m.name || m.zh}${m.note ? `<div class="note">${m.note}</div>` : ''}</td><td class="n">${m.count}</td><td class="s">${m.stacks}</td>`; mats.appendChild(tr);
+  }
+  // before/after wipe for a screenshot-matched view (canvas letterboxed to the screenshot's aspect)
+  const compare = $('compare'), shot = $('shot'), wipe = $('wipe');
+  let cmp = false, cutPct = 50;
+  if (P.shot) shot.src = P.shot;
+  function layout() {
+    const stage = $('stage');
+    if (!cmp) { stage.style.inset = '0'; return; }
+    const W = innerWidth, H = innerHeight, ar = (P.shotAspect || 16 / 9);
+    let w = W, h = W / ar; if (h > H) { h = H; w = H * ar; }
+    const l = (W - w) / 2, t = (H - h) / 2;
+    Object.assign(stage.style, { left: l + 'px', top: t + 'px', right: 'auto', bottom: 'auto', width: w + 'px', height: h + 'px' });
+    Object.assign(shot.style, { left: l + 'px', top: t + 'px', width: w + 'px', height: h + 'px' });
+    wipe.style.left = (l + w * cutPct / 100) + 'px'; shot.style.setProperty('--cut', cutPct + '%');
+    compare._box = { l, w };
+  }
+  function setCompare(on) {
+    cmp = on && !!P.shot; compare.classList.toggle('on', cmp);
+    const stage = $('stage');
+    if (!cmp) Object.assign(stage.style, { left: '0', top: '0', right: '0', bottom: '0', width: '', height: '' });
+    layout();
+  }
+  addEventListener('resize', layout);
+  let drag = false;
+  wipe.addEventListener('pointerdown', e => { drag = true; wipe.setPointerCapture(e.pointerId); });
+  wipe.addEventListener('pointermove', e => { if (!drag || !compare._box) return; cutPct = Math.max(0, Math.min(100, (e.clientX - compare._box.l) / compare._box.w * 100)); layout(); });
+  wipe.addEventListener('pointerup', () => { drag = false; });
+})();
+</script>
+</body>
+</html>

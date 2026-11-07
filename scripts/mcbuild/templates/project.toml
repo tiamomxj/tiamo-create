@@ -1,0 +1,69 @@
+# mcbuild project - every command reads this file.   python <skill>/scripts/mcb.py <command> -p <this folder>
+
+[project]
+name = "__NAME__"              # display name (any language): page title, schematic name, guide
+id = "__ID__"                  # ASCII file id: <id>-<target_version>.nbt
+version = "__VERSION__"            # Minecraft Java version of the block data (scripts/mcbuild/data/<version>)
+lang = "__LANG__"                    # deliverables language: zh | en
+author = "__AUTHOR__"
+
+[site]
+# Where the terrain comes from:
+#   voxy      a server/world the player visited with the Voxy mod (read-only LOD cache, exact blocks at level 0)
+#   anvil     a Java save folder (singleplayer / downloaded world / backup), or a folder of region files
+#             (a Bobby chunk cache of a server)                                -> world = "path/to/save"
+#   schematic surroundings given as .litematic/.schem/.nbt (e.g. an area the player saved with Litematica)
+#                                                                              -> schematic = "...", origin = [x, y, z]
+#   flat      no known site: synthetic grass/dirt/stone ground at ground_y (optional water_y)
+#   none      like flat but marked "no site" (portable schematic, no terrain copied)
+source = "__SOURCE__"
+# server = "mc.example.com"    # voxy: server folder name under .voxy/saves (substring ok); `mcb find-data` lists them
+# dimension = "overworld"
+# store = ""                   # voxy: exact storage folder (if several caches match)
+# voxy_jar = ""                # voxy: the Voxy mod jar, if the cache was copied out of its game folder
+# world = ""                   # anvil: save folder or region folder
+# box = [x0, y0, z0, x1, y1, z1]   # area to read (end exclusive): the build + 40..80 blocks of surroundings
+ground_y = 64                  # flat/none
+# water_y = 62                 # flat: optional water surface
+# biome = "minecraft:plains"
+
+[design]
+script = "design.py"
+origin = [0, 65, 0]            # read by design.py: world position of the local origin (floor level)
+turns = 0                      # clockwise quarter turns of the whole design (0..3)
+
+[export]
+format = "create"             # Create vanilla-structure .nbt; optional: "litematic"
+target_version = "1.20.1"      # output game version; project.version remains the bundled registry version
+loader = "Forge"
+create_version = "6.0.8"
+# Create exports only design cells; no untouched terrain or inventories/glue are copied.
+# mode = "site"                # Litematica only: copy untouched terrain into region boxes
+#                              # portable: design only (default for flat/none)
+region_penalty = 20            # Litematica only: copied cells accepted to save one sub-region
+schem = false                  # also write a Sponge .schem (WorldEdit / FAWE / Axiom users)
+# max_region = 64              # split very large builds into sub-regions no longer than this
+part_names = { main = "__MAIN__" }  # material parts; Litematica sub-region names when that format is selected
+
+[verify]
+spawnproof = true              # every spawnable surface of the build needs block light >= 1
+# spawnproof_strict = true     # dark surfaces are errors (false: warnings)
+# allow_floating = false       # floating islands / sky builds: true
+# walk_start = [x, y, z]       # feet cell outside the entrance
+# walk_targets = { "hall" = [x, y, z], "upstairs" = [x, y, z] }
+
+[preview]
+title = "__NAME__"
+subtitle = ""
+lead = ""                      # one-paragraph pitch shown on the page and in the guide
+front = "south"                # which side is the front (camera presets)
+context = 40                   # surroundings shown around the build (blocks)
+# views = [ { name = "garden", label = "Garden", pos = [x, y, z], target = [x, y, z], fov = 55 } ]
+
+[ingame]
+# views = [ { name = "01-front", label = "Front", pos = [x, y, z], target = [x, y, z], time = 1000 } ]   # eye positions
+# modes = ["default", "with_non_air", "all"]
+
+[release]
+notes = []                     # design notes for the guide (choices, deviations, how to change them) - player's language
+zip = false

@@ -1,0 +1,29 @@
+// mcbuild harness: (1) dumpFacts — per-block-state facts straight from the game code (light, collision, faces, items);
+// (2) verifyClient — real-client Litematica paste + cell comparison + screenshots, driven by a JSON config.
+// Versions come from gradle.properties (written by `mcb harness`). Litematica / MaLiLib jars go into libs/.
+plugins { id 'fabric-loom' version "${loom_version}" }
+version = '1.0'; group = 'dev.mcbuild'
+def hasLitematica = fileTree(dir: 'libs', include: '*litematica*.jar').files.size() > 0
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    fileTree(dir: 'libs', include: '*.jar').each { modImplementation files(it) }
+}
+sourceSets { main { java { if (!hasLitematica) exclude '**/IngameTest.java' } } }
+loom {
+    runs {
+        dumpFacts {
+            server(); runDir 'run'; vmArg '-Xmx2G'
+            vmArg "-Dmcbuild.facts=${project.findProperty('factsOut') ?: file('build/facts.json.gz').absolutePath}"
+        }
+        verifyClient {
+            client(); runDir 'run'; vmArg '-Xmx4G'; vmArg '-Dfabric.client.gametest'
+            vmArg '-Dfabric.client.gametest.disableNetworkSynchronizer'
+            if (project.hasProperty('mcbuildConfig')) vmArg "-Dmcbuild.config=${project.property('mcbuildConfig')}"
+            programArg '--width'; programArg '1920'; programArg '--height'; programArg '1080'
+        }
+    }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.release = 21 }

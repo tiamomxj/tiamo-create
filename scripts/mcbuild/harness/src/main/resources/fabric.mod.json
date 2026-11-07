@@ -1,0 +1,2 @@
+{"schemaVersion":1,"id":"mcbuild_harness","version":"1.0","name":"mcbuild harness (block facts dump + in-game Litematica test)","environment":"*",
+ "entrypoints":{"preLaunch":["dev.mcbuild.harness.FactsDump"],"fabric-client-gametest":["dev.mcbuild.harness.IngameTest"]},"depends":{"fabric-api":"*"}}
